@@ -49,7 +49,7 @@ angular.module('history').service('chromeAPI', function ($q) {
     this.getCurrentURL = function(success, failure) {
         /*chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab)  {
             console.log(changeInfo);
-            if (info.status == "complete") {
+            if (changeInfo.status == "complete") {
                 success(info);
             }
         });
@@ -63,6 +63,16 @@ angular.module('history').service('chromeAPI', function ($q) {
         );
     };
 
+    /**
+    * updates the new url in the browser
+    */
+    this.getUpdatedURL = function(success, failure) {
+        /*chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+            if(changeInfo.status == "complete" && ("url" in changeInfo)) {
+                success(changeInfo.url);
+            }
+        });*/
+    }
     /**
     * fetches the profile if of the user
     */
