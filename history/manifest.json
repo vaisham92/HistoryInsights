@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+
+  "name": "History",
+  "description": "This extension takes your browser history and displays analytics based on what you browse frequently and what your pattern of using internet usually is",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_title": "History!",
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "identity",
+    "tabs",
+    "storage",
+    "activeTab",
+    "https://ajax.googleapis.com/",
+    "http://localhost:3000/*"
+  ],
+  "oauth2": {
+    "client_id": "647425232826-466o811ds8sd1318qk00pck651bvhe75.apps.googleusercontent.com",
+    "scopes": ["profile"]
+  },
+  "background": {
+        "page": "popup.html"
+  }
+}
