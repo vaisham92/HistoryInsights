@@ -46,17 +46,35 @@ historyApp.controller('mainController', function($scope, $http, $routeParams, ch
 	var newT1 = current_date.getTime();
 	var website;
 	var newT2;
+	var isUrlUpdated = false;
 	
 	//updateT1();
 	//updateWebsite();
 	chrome.tabs.onActivated.addListener(function callback(activeInfo) {
-		updateT2();
-		updateWebsite();
-		sendData(profile_id, newT1, newT2, website);
-		//sendGet();
-		updateT1();
-		updateWebsite();
+		if(isUrlUpdated) {
+			updateT2();
+			updateWebsite();
+			//changeWebsiteIfUpdated();
+			sendData(profile_id, newT1, newT2, website);
+			//sendGet();
+			updateT1();
+			updateWebsite();
+		}
+		else isUrlUpdated = false;
 	});
+	chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+        if(changeInfo.status == "complete") {
+
+            updateT2();
+			updateWebsite();
+			isUrlUpdated = true;
+			//changeWebsiteIfUpdated();
+			sendData(profile_id, newT1, newT2, website);
+			sendGet();
+			updateT1();
+			updateWebsite();
+        }
+    });
 
 	var updateT1 = function() {
 		current_date = new Date();
@@ -72,7 +90,13 @@ historyApp.controller('mainController', function($scope, $http, $routeParams, ch
 		chromeAPI.getCurrentURL(function(url) {
 			//alert(url);
 			website = url;
-		}, function(err){});
+		}, function(err) {});
+	};
+
+	var changeWebsiteIfUpdated = function() {
+		chromeAPI.getUpdatedURL(function(url) {
+			website = url;
+		}, function(err) {});
 	};
 
 	var sendData = function(profile_id, newT1, newT2, website) {
