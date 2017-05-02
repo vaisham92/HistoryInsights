@@ -51,7 +51,7 @@ historyApp.controller('mainController', function($scope, $http, $routeParams, ch
 	//updateT1();
 	//updateWebsite();
 	chrome.tabs.onActivated.addListener(function callback(activeInfo) {
-		if(isUrlUpdated) {
+		if(!isUrlUpdated) {
 			updateT2();
 			updateWebsite();
 			//changeWebsiteIfUpdated();
@@ -70,7 +70,7 @@ historyApp.controller('mainController', function($scope, $http, $routeParams, ch
 			isUrlUpdated = true;
 			//changeWebsiteIfUpdated();
 			sendData(profile_id, newT1, newT2, website);
-			sendGet();
+			//sendGet();
 			updateT1();
 			updateWebsite();
         }
@@ -100,6 +100,8 @@ historyApp.controller('mainController', function($scope, $http, $routeParams, ch
 	};
 
 	var sendData = function(profile_id, newT1, newT2, website) {
+		if(website == undefined || website == "chrome://newtab") return;
+		if(newT2 - newT1 < 5000) return;
         $http({
         	method: 'POST',
             url: 'http://localhost:3000/history',
