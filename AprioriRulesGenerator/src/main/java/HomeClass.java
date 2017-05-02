@@ -17,28 +17,38 @@ public class HomeClass {
     public static void main(String[] args){
         MongoHelper mongoObject = new MongoHelper();
         try{
+            WebCategorizer wc = new WebCategorizer();
+            wc.fetchCategories();
+            //wc.loadCategories();
+            /*
             // Get Users list from MongoDb
             mongoObject.connect();
             // Get previous day browsing data for each User
 
             // Generate transactions from browsing data
-            List<String> input = breakData();
-            for (String s: input
+            HashMap<Integer, JSONObject> historyList = breakData();
+            List<String> transactionList = new ArrayList<String>();
+            for(int i : historyList.keySet()){
+                JSONObject tempJSON = historyList.get(i);
+                StringBuilder tempTransaction = new StringBuilder();
+                for(Object key : tempJSON.keySet()){
+                    if((long)tempJSON.get(key) > 30) {
+                        tempTransaction.append((String)key+" ");
+                    }
+                }
+                if(tempTransaction.toString().length() != 0)
+                    transactionList.add(tempTransaction.toString());
+            }
+            transactionList.set(1,"newtab mongodb.github.io");
+
+            for (String s: transactionList
                     ) {
                 System.out.println(s);
             }
             // Generate rules
-            //List<String> input = new ArrayList<String>();
-        /*
-        input.add("Noodles Pickles Milk");
-        input.add("Noodles Cheese");
-        input.add("Noodles Pickles Cheese");
-        input.add("Noodles Pickles Clothes Cheese Milk");
-        input.add("Pickles Clothes Milk");
-        input.add("Pickles Milk Clothes");*/
 
             GenerateRules gr = new GenerateRules();
-            ArrayList<JSONObject> rules = gr.generateRules(input);
+            ArrayList<JSONObject> rules = gr.generateRules(transactionList);
             for(JSONObject rule:rules) {
                 System.out.println(rule);
             }
@@ -48,6 +58,7 @@ public class HomeClass {
 
 
             mongoObject.disconnect();
+            */
         }
         catch(Exception ex) {
             if(ex.getClass().getName().equals("UnknownHostException")){
@@ -57,7 +68,7 @@ public class HomeClass {
         }
     }
 
-    private static List<String> breakData(){
+    private static HashMap<Integer, JSONObject> breakData(){
         //Dummy Data
         String s = "[" +
                 "                {" +
@@ -155,7 +166,6 @@ public class HomeClass {
             JSONParser parser = new JSONParser();
             Object obj = parser.parse(s);
             JSONArray inputData = (JSONArray)obj;
-            List<String> transactionList = new ArrayList<String>();
             HashMap<Integer, JSONObject> historyList = new HashMap<Integer, JSONObject>();
             for(Object urlHistory : inputData){
                 JSONObject historyRecord = (JSONObject)urlHistory;
@@ -163,23 +173,11 @@ public class HomeClass {
                 Timestamp T1 = new Timestamp((long) historyRecord.get("T1"));
                 Timestamp T2 = new Timestamp((long) historyRecord.get("T2"));
             }
-            for(int i : historyList.keySet()){
-                JSONObject tempJSON = historyList.get(i);
-                StringBuilder tempTransaction = new StringBuilder();
-                for(Object key : tempJSON.keySet()){
-                    if((long)tempJSON.get(key) > 30) {
-                        tempTransaction.append((String)key+" ");
-                    }
-                }
-                if(tempTransaction.toString().length() != 0)
-                    transactionList.add(tempTransaction.toString());
-            }
-            transactionList.set(1,"newtab mongodb.github.io");
-            return transactionList;
+            return historyList;
         }
         catch(Exception ex) {
             System.out.println(ex.getClass().getName().toString());
-            return new ArrayList<String>();
+            return new HashMap<Integer, JSONObject>();
         }
     }
 
