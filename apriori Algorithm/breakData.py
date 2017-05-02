@@ -1,69 +1,146 @@
-def load_data():
-	return [{"profile_id":"100427714450058914818","T1":1493529473483,"T2":1493529484801,"website":"https://developer.chrome.com/extensions/tabs"},{"profile_id":"100427714450058914818","T1":1493529484802,"T2":1493529485763,"website":"http://stackoverflow.com/questions/5507827/how-to-detect-tabs-change-urls-or-tabs-create-on-google-chrome-extension"},{"profile_id":"100427714450058914818","T1":1493529485764,"T2":1493529505848,"website":"http://stackoverflow.com/questions/1979583/how-can-i-get-the-url-of-the-current-tab-from-a-google-chrome-extension"},{"profile_id":"100427714450058914818","T1":1493529505848,"T2":1493529509445,"website":"http://stackoverflow.com/questions/5507827/how-to-detect-tabs-change-urls-or-tabs-create-on-google-chrome-extension"},
-{"profile_id":"100427714450058914818","T1":1493529509446,"T2":1493529516462,"website":"http://stackoverflow.com/"},
-{"profile_id":"100427714450058914818","T1":1493529516462,"T2":1493529521344,"website":"https://developer.chrome.com/extensions/tabs"},
-{"profile_id":"100427714450058914818","T1":1493529521345,"T2":1493529526326,"website":"http://stackoverflow.com/"},
-{"profile_id":"100427714450058914818","T1":1493529526327,"T2":1493529526671,"website":"http://stackoverflow.com/questions/5507827/how-to-detect-tabs-change-urls-or-tabs-create-on-google-chrome-extension"},
-{"profile_id":"100427714450058914818","T1":1493529526672,"T2":1493529543994,"website":"http://stackoverflow.com/"},
-{"profile_id":"100427714450058914818","T1":1493529543995,"T2":1493529585337,"website":"https://developer.chrome.com/extensions/tabs"},
-{"profile_id":"100427714450058914818","T1":1493529585338,"T2":1493529585689,"website":"http://stackoverflow.com/questions/5507827/how-to-detect-tabs-change-urls-or-tabs-create-on-google-chrome-extension"},
-{"profile_id":"100427714450058914818","T1":1493529585690,"T2":1493529586008,"website":"http://stackoverflow.com/"},
-{"profile_id":"100427714450058914818","T1":1493529586008,"T2":1493529586513,"website":"http://stackoverflow.com/questions/5507827/how-to-detect-tabs-change-urls-or-tabs-create-on-google-chrome-extension"},
-{"profile_id":"100427714450058914818","T1":1493529586513,"T2":1493529597954,"website":"https://developer.chrome.com/extensions/tabs"},
-{"profile_id":"100427714450058914818","T1":1493529597954,"T2":1493529687293,"website":"chrome://newtab/"},
-{"profile_id":"100427714450058914818","T1":1493529687293,"T2":1493529688021,"website":"http://read.bi/2pehtsz"},
-{"profile_id":"100427714450058914818","T1":1493529688022,"T2":1493529690784,"website":"https://www.facebook.com/"},
-{"profile_id":"100427714450058914818","T1":1493529690784,"T2":1493529712113,"website":"http://www.businessinsider.com/how-to-green-card-visa-legal-immigration-us-news-trump-2017-4?utm_content=bufferbdba7&utm_medium=social&utm_source=facebook.com&utm_campaign=buffer-bi"},
-{"profile_id":"100427714450058914818","T1":1493529712113,"T2":1493529756562,"website":"chrome://newtab/"},
-{"profile_id":"100427714450058914818","T1":1493529756562,"T2":1493529758155,"website":"http://www.businessinsider.com/how-to-green-card-visa-legal-immigration-us-news-trump-2017-4?utm_content=bufferbdba7&utm_medium=social&utm_source=facebook.com&utm_campaign=buffer-bi"},
-{"profile_id":"100427714450058914818","T1":1493529758156,"T2":1493529998068,"website":"https://web.whatsapp.com/"},
-{"profile_id":"100427714450058914818","T1":1493529998069,"T2":1493530140461,"website":"http://www.businessinsider.com/how-to-green-card-visa-legal-immigration-us-news-trump-2017-4?utm_content=bufferbdba7&utm_medium=social&utm_source=facebook.com&utm_campaign=buffer-bi"},
-{"profile_id":"100427714450058914818","T1":1493530140463,"T2":1493530406599,"website":"https://web.whatsapp.com/"},
-{"profile_id":"100427714450058914818","T1":1493530406599,"T2":1493530436526,"website":"http://www.businessinsider.com/how-to-green-card-visa-legal-immigration-us-news-trump-2017-4?utm_content=bufferbdba7&utm_medium=social&utm_source=facebook.com&utm_campaign=buffer-bi"},
-{"profile_id":"100427714450058914818","T1":1493530436527,"T2":1493530437150,"website":"https://web.whatsapp.com/"},
-{"profile_id":"100427714450058914818","T1":1493530437151,"T2":1493530437524,"website":"https://www.facebook.com/"},
-{"profile_id":"100427714450058914818","T1":1493530437524,"T2":1493530438218,"website":"https://developer.chrome.com/extensions/tabs"},
-{"profile_id":"100427714450058914818","T1":1493530438219,"T2":1493530438615,"website":"http://stackoverflow.com/"},
-{"profile_id":"100427714450058914818","T1":1493530438616,"T2":1493530471493,"website":"http://stackoverflow.com/questions/5507827/how-to-detect-tabs-change-urls-or-tabs-create-on-google-chrome-extension"},
-{"profile_id":"100427714450058914818","T1":1493530471493,"T2":1493530501447,"website":"https://developer.chrome.com/extensions/tabs"},
-{"profile_id":"100427714450058914818","T1":1493530501448,"T2":1493530503536,"website":"https://web.whatsapp.com/"},
-{"profile_id":"100427714450058914818","T1":1493530503537,"T2":1493530544950,"website":"https://www.facebook.com/"},
-{"profile_id":"100427714450058914818","T1":1493530544950,"T2":1493530602066,"website":"https://web.whatsapp.com/"},
-{"profile_id":"100427714450058914818","T1":1493530602067,"T2":1493530602537,"website":"http://www.businessinsider.com/how-to-green-card-visa-legal-immigration-us-news-trump-2017-4?utm_content=bufferbdba7&utm_medium=social&utm_source=facebook.com&utm_campaign=buffer-bi"},
-{"profile_id":"100427714450058914818","T1":1493530602537,"T2":1493530612350,"website":"https://web.whatsapp.com/"},
-{"profile_id":"100427714450058914818","T1":1493530612350,"T2":1493530613169,"website":"http://www.businessinsider.com/how-to-green-card-visa-legal-immigration-us-news-trump-2017-4?utm_content=bufferbdba7&utm_medium=social&utm_source=facebook.com&utm_campaign=buffer-bi"},
-{"profile_id":"100427714450058914818","T1":1493530613169,"T2":1493530661235,"website":"https://web.whatsapp.com/"},
-{"profile_id":"100427714450058914818","T1":1493530661236,"T2":1493530661564,"website":"https://www.google.com/search?q=chrome+extension+on+tab+change&oq=chrome+extension+on+tab+change&aqs=chrome.0.69i59j0l5.8802j1j7&sourceid=chrome&ie=UTF-8"},
-{"profile_id":"100427714450058914818","T1":1493530661565,"T2":1493530662481,"website":"chrome://extensions/"},
-{"profile_id":"100427714450058914818","T1":1493530662481,"T2":1493530667892,"website":"https://www.google.com/search?q=chrome+extension+on+tab+change&oq=chrome+extension+on+tab+change&aqs=chrome.0.69i59j0l5.8802j1j7&sourceid=chrome&ie=UTF-8"},
-{"profile_id":"100427714450058914818","T1":1493530667893,"T2":1493530668417,"website":"https://www.w3schools.com/js/js_dates.asp"},
-{"profile_id":"100427714450058914818","T1":1493530668417,"T2":1493530669011,"website":"https://developer.chrome.com/extensions/background_pages"},
-{"profile_id":"100427714450058914818","T1":1493530669011,"T2":1493530752500,"website":"http://stackoverflow.com/questions/5507827/how-to-detect-tabs-change-urls-or-tabs-create-on-google-chrome-extension"},
-{"profile_id":"100427714450058914818","T1":1493530752501,"T2":1493530822186,"website":"chrome://newtab/"},
-{"profile_id":"100427714450058914818","T1":1493530822187,"T2":1493530833148,"website":"https://www.mongodb.com/download-center?jmp=docs"},
-{"profile_id":"100427714450058914818","T1":1493530833148,"T2":1493530834910,"website":"chrome://downloads/"},
-{"profile_id":"100427714450058914818","T1":1493530834910,"T2":1493530835994,"website":"https://www.mongodb.com/dr/fastdl.mongodb.org/win32/mongodb-win32-x86_64-2008plus-ssl-3.4.4-signed.msi/download"},
-{"profile_id":"100427714450058914818","T1":1493530835995,"T2":1493530888552,"website":"chrome://downloads/"},
-{"profile_id":"100427714450058914818","T1":1493530888553,"T2":1493530906928,"website":"https://docs.mongodb.com/v3.0/tutorial/install-mongodb-on-windows/"},
-{"profile_id":"100427714450058914818","T1":1493530906928,"T2":1493530907994,"website":"https://web.whatsapp.com/"},
-{"profile_id":"100427714450058914818","T1":1493530907994,"T2":1493531012947,"website":"chrome://downloads/"},
-{"profile_id":"100427714450058914818","T1":1493531012948,"T2":1493531078029,"website":"https://web.whatsapp.com/"},
-{"profile_id":"100427714450058914818","T1":1493531078029,"T2":1493531181097,"website":"chrome://newtab/"},
-{"profile_id":"100427714450058914818","T1":1493531181098,"T2":1493531184542,"website":"https://github.com/vaisham92/AmazonFreshMock/blob/master/Amazon%20Fresh/routes/mongo-db-helper.js"},
-{"profile_id":"100427714450058914818","T1":1493531184542,"T2":1493531203177,"website":"https://github.com/vaisham92/AmazonFreshMock/blob/master/Amazon%20Fresh/routes/mongo.js"},
-{"profile_id":"100427714450058914818","T1":1493531203178,"T2":1493531203703,"website":"https://github.com/vaisham92/AmazonFreshMock/blob/master/Amazon%20Fresh/routes/mongo-db-helper.js"},
-{"profile_id":"100427714450058914818","T1":1493531203703,"T2":1493531237568,"website":"https://github.com/vaisham92/AmazonFreshMock/blob/master/Amazon%20Fresh/routes/mongo.js"},
-{"profile_id":"100427714450058914818","T1":1493531237568,"T2":1493531398512,"website":"https://github.com/vaisham92/AmazonFreshMock/blob/master/Amazon%20Fresh/routes/mongo-db-helper.js"},
-{"profile_id":"100427714450058914818","T1":1493531398514,"T2":1493531398954,"website":"https://github.com/vaisham92/AmazonFreshMock/blob/master/Amazon%20Fresh/routes/mongo.js"},
-{"profile_id":"100427714450058914818","T1":1493531398954,"T2":1493531406119,"website":"https://github.com/vaisham92/Projects/tree/master/twitter-mock"},
-{"profile_id":"100427714450058914818","T1":1493531406119,"T2":1493531406464,"website":"https://github.com/vaisham92/AmazonFreshMock/blob/master/Amazon%20Fresh/routes/mongo.js"},
-{"profile_id":"100427714450058914818","T1":1493531406464,"T2":1493531727235,"website":"https://github.com/vaisham92/Projects/tree/master/twitter-mock"},
-{"profile_id":"100427714450058914818","T1":1493531727235,"T2":1493531780065,"website":"chrome://newtab/"},
-{"profile_id":"100427714450058914818","T1":1493531780065,"T2":1493532100139,"website":"chrome://newtab/"}]
+import json
+import time
+import datetime
+from collections import defaultdict
 
+def load_data():
+	return [
+                {
+                        "T1" : 1493624668716,
+                        "T2" : 1493624704594,
+                        "hostname" : "mongodb.github.io",
+                        "pathname" : "/node-mongodb-native/2.2/api/"
+                },
+                {
+                        "T1" : 1493624711112,
+                        "T2" : 1493624765099,
+                        "hostname" : "angular-tutorial.quora.com",
+                        "pathname" : "/Make-a-Todo-Chrome-Extension-with-AngularJS-1"
+                },
+                {
+                        "T1" : 1493624766449,
+                        "T2" : 1493624778930,
+                        "hostname" : "angular-tutorial.quora.com",
+                        "pathname" : "/Make-a-Todo-Chrome-Extension-with-AngularJS-1"
+                },
+                {
+                        "T1" : 1493624782293,
+                        "T2" : 1493624802577,
+                        "hostname" : "newtab",
+                        "pathname" : "/"
+                },
+                {
+                        "T1" : 1493624802578,
+                        "T2" : 1493624807890,
+                        "hostname" : "www.google.com",
+                        "pathname" : "/search"
+                },
+                {
+                        "T1" : 1493624811631,
+                        "T2" : 1493624838607,
+                        "hostname" : "developer.chrome.com",
+                        "pathname" : "/extensions/tabs"
+                },
+                {
+                        "T1" : 1493624838607,
+                        "T2" : 1493624884959,
+                        "hostname" : "developer.chrome.com",
+                        "pathname" : "/extensions/tabs"
+                },
+                {
+                        "T1" : 1493624884959,
+                        "T2" : 1493624897009,
+                        "hostname" : "newtab",
+                        "pathname" : "/"
+                },
+                {
+                        "T1" : 1493624897010,
+                        "T2" : 1493624908105,
+                        "hostname" : "www.google.com",
+                        "pathname" : "/search"
+                },
+                {
+                        "T1" : 1493624908106,
+                        "T2" : 1493624923002,
+                        "hostname" : "www.google.com",
+                        "pathname" : "/search"
+                },
+                {
+                        "T1" : 1493624923003,
+                        "T2" : 1493624955170,
+                        "hostname" : "developer.chrome.com",
+                        "pathname" : "/extensions/idle"
+                },
+                {
+                        "T1" : 1493624970728,
+                        "T2" : 1493624997953,
+                        "hostname" : "www.responsivemiracle.com",
+                        "pathname" : "/best-materialize-css-templates/"
+                },
+                {
+                        "T1" : 1493624997953,
+                        "T2" : 1493625006126,
+                        "hostname" : "maxartkiller.in",
+                        "pathname" : "/rock-on-materialize-responsive-admin-html-template/"
+                },
+                {
+                        "T1" : 1493625006127,
+                        "T2" : 1493625011257,
+                        "hostname" : "maxartkiller.in",
+                        "pathname" : "/website/rockon/rockon_blue/pages/index.html"
+                },
+                {
+                        "T1" : 1493531780065,
+                        "T2" : 1493532100139,
+                        "hostname" : "newtab",
+                        "pathname" : "/"
+                }
+        ]
+
+# Function to add a website to specific time slots the website belongs to
+def add_to_slot(historyList, historyRecord):
+	T1 = historyRecord['T1']
+	T2 = historyRecord['T2']
+	startT = time.ctime(T1/1000)
+	endT = time.ctime(T2/1000)
+	startTime = datetime.datetime.strptime(startT, "%a %b %d %H:%M:%S %Y")
+	endTime = datetime.datetime.strptime(endT, "%a %b %d %H:%M:%S %Y")
+	startSlot = (startTime.hour)/2
+	endSlot = (endTime.hour)/2
+
+	# Change this for adding to more than 1 slot
+	dataObject = historyList[startSlot]
+	if historyRecord['hostname'] in dataObject.keys():
+		dataObject[historyRecord['hostname']] = dataObject[historyRecord['hostname']] + (T2-T1)/1000
+	else:
+		dataObject[historyRecord['hostname']] = (T2-T1)/1000
+
+
+# Function to break the JSON input of a specific user into a series of transactions based on timeslots
 def break_data():
 	#Loading Data Set from load_data
 	jsonData = load_data()
-	print jsonData
+	historyList = [{},{},{},{},{},{},{},{},{},{},{},{}]
+	result = []
+	for historyRecord in jsonData:
+		
+		# Adding the website to a Time slot
+		add_to_slot(historyList, historyRecord)
 
-break_data()
+	for historyRecord in historyList:
+		temp_result = []
+		for url in historyRecord.keys():
+			if historyRecord[url] > 30:
+				temp_result.append(url)
+		if len(temp_result) > 0:
+			result.append(temp_result)
+
+	#result[1].append('mongodb.github.io')
+	urlSet = set()
+	transactionList = list()
+	for record in result:
+		transaction = frozenset(record)
+		transactionList.append(transaction)
+		for url in transaction:
+			urlSet.add(frozenset([url]))
+	return urlSet, transactionList
