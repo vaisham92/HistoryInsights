@@ -2,12 +2,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * Created by maverick on 5/2/17.
@@ -19,6 +17,7 @@ public class WebCategorizer {
 
     public JSONObject fetchCategories(){
         try{
+            JSONObject webCatList = new JSONObject();
             URL obj = new URL(categoriesUrl);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod("GET");
@@ -40,22 +39,21 @@ public class WebCategorizer {
                 JSONParser parser = new JSONParser();
                 Object jsonObj = parser.parse(response.toString());
                 JSONArray inputData = (JSONArray)jsonObj;
-                JSONObject webCat = new JSONObject();
                 for (Object currObj: inputData
                      ) {
                     JSONObject tempObj = (JSONObject)currObj;
-                    webCat.put(tempObj.get("num"),tempObj.get("name"));
+                    webCatList.put(tempObj.get("num"),tempObj.get("name"));
                 }
 
                 FileWriter file = new FileWriter(categoriesFile);
-                file.write(webCat.toJSONString());
+                file.write(webCatList.toJSONString());
                 file.flush();
                 file.close();
             }
             else{
                 System.out.println("Not working");
             }
-            return new JSONObject();
+            return webCatList;
         }
         catch(Exception ex){
             return new JSONObject();
@@ -75,7 +73,36 @@ public class WebCategorizer {
         }
     }
 
-    public void getWebCategories(String[] args){
+    public void getWebCategories(ArrayList<String> urlList){
+        File file = new File(categoriesFile);
+        JSONObject webCatList = new JSONObject();
+        if(file.exists()){
+            webCatList = loadCategories();
+        }
+        else{
+            webCatList = fetchCategories();
+        }
 
+        for(String url : urlList){
+            String host = "";
+            String port = "";
+            if(url.indexOf(':') > -1){
+                String[] urlAddr = url.split(":");
+                host = urlAddr[0];
+                port = urlAddr[1];
+            }
+            else{
+                host = url;
+                port = "80";
+            }
+            StringBuilder remoteUrl = new StringBuilder("http://sp.cwfservice.net/1/R/");
+            remoteUrl.append(k9License);
+            remoteUrl.append("/K9-00006/0/GET/HTTP/");
+            remoteUrl.append(host);
+            remoteUrl.append("/");
+            remoteUrl.append(port);
+            remoteUrl.append("///");
+            System.out.println(remoteUrl.toString());
+        }
     }
 }

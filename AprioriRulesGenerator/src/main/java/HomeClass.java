@@ -18,8 +18,11 @@ public class HomeClass {
         MongoHelper mongoObject = new MongoHelper();
         try{
             WebCategorizer wc = new WebCategorizer();
-            wc.fetchCategories();
-            //wc.loadCategories();
+            ArrayList<String> ab = new ArrayList<>();
+            ab.add("facebook.com");
+            ab.add("orkut.com");
+            ab.add("google.com");
+            wc.getWebCategories(ab);
             /*
             // Get Users list from MongoDb
             mongoObject.connect();
