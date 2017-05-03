@@ -27,7 +27,7 @@
        min-height:200px;
        }
    </style>
-   <body ng-app="history" ng-controller="mainController">
+   <body ng-app="history" ng-controller="mainController" class="pink lighten-5">
       <div ng-show="loginUI">
         <nav>
           <div class="pink darken-1 nav-wrapper">
@@ -35,19 +35,45 @@
           </div>
         </nav>
         <main>
-          <div class="pink lighten-5 row">
-           <div class="col s2">
-              <p>&nbsp</p>
-           </div>
-           <div class="col s8">
-              <a class="waves-effect waves-light btn-large red" ng-click="login()">Login with Google</a>
-           </div>
-           <div class="col s2">
-              <p>&nbsp</p>
-           </div>
-        </div>
+          <div class="row card valign center">
+            <div class="col s1">&nbsp</div>
+            <div class="col s10">
+              <h6 class="black-text">Login into the Chrome application using any Google account. The extension uses secured Oauth2 protocol for two handshake mechanism.</h6>
+              <br>
+              <h6 class="black-text">The login credentials are used to get profile information of the user in order to maintain record of user information.</h6>
+            </div>
+            <div class="col s1">&nbsp</div>
+          </div>
+          <div class="row">
+             <div class="col s2">
+                <p>&nbsp</p>
+             </div>
+             <div class="col s8">
+                <a class="waves-effect waves-light btn-large red" ng-click="login()">Login with Google</a>
+             </div>
+             <div class="col s2">
+                <p>&nbsp</p>
+             </div>
+          </div>
         </main>
         <footer class="pink darken-1 page-footer">
+          <div class="container">
+            <div class="row">
+              <div class="col l6 s12">
+                <h5 class="white-text">What does your history say about you?</h5>
+                <p class="grey-text text-lighten-4">History Analyzer</p>
+              </div>
+              <div class="col l4 offset-l2 s12">
+                <h5 class="white-text">Developers</h5>
+                <ul>
+                  <li><a class="grey-text text-lighten-3" href="#!">Bharath Kumar Narahari</a></li>
+                  <li><a class="grey-text text-lighten-3" href="#!">Tushara Sankaran Arakkan</a></li>
+                  <li><a class="grey-text text-lighten-3" href="#!">Chandana Rao Halsulige Rao</a></li>
+                  <li><a class="grey-text text-lighten-3" href="#!">Vaishampayan Reddy Pathuri</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
           <div class="footer-copyright">
             <div class="container">
             © 2017 Copyright Team Illusion
@@ -63,12 +89,21 @@
           </div>
         </nav>
         <main>
-          <div class="pink lighten-5 row">
+          <div class="row card valign center">
+            <div class="col s1">&nbsp</div>
+            <div class="col s10">
+              <h6 class="black-text">This Chrome application captures your browsing information and sends it to a data mining engine to mine for knowledge discovery.</h6>
+              <br>
+              <h6 class="black-text">The following link redirects to a dashboard that projects the analytics run and the knowledge discovered.</h6>
+            </div>
+            <div class="col s1">&nbsp</div>
+          </div>
+          <div class="row">
              <div class="col s2">
                 <p>&nbsp</p>
              </div>
              <div class="col s8">
-                <a class="waves-effect waves-light btn-large red" target="_blank" href="https://historyinsights.herokuapp.com">Run my Analytics</a>
+                <a class="waves-effect waves-light btn-large pink" target="_blank" href="https://historyinsights.herokuapp.com">show my Analytics</a>
              </div>
              <div class="col s2">
                 <p>&nbsp</p>
@@ -76,6 +111,23 @@
           </div>
         </main>
         <footer class="pink darken-1 page-footer">
+          <div class="container">
+            <div class="row">
+              <div class="col l6 s12">
+                <h5 class="white-text">What does your history say about you?</h5>
+                <p class="grey-text text-lighten-4">History Analyzer</p>
+              </div>
+              <div class="col l4 offset-l2 s12">
+                <h5 class="white-text">Developers</h5>
+                <ul>
+                  <li><a class="grey-text text-lighten-3" href="#!">Bharath Kumar Narahari</a></li>
+                  <li><a class="grey-text text-lighten-3" href="#!">Tushara Sankaran Arakkan</a></li>
+                  <li><a class="grey-text text-lighten-3" href="#!">Chandana Rao Halsulige Rao</a></li>
+                  <li><a class="grey-text text-lighten-3" href="#!">Vaishampayan Reddy Pathuri</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
           <div class="footer-copyright">
             <div class="container">
             © 2017 Copyright Team Illusion
