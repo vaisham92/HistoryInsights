@@ -27,10 +27,10 @@ public class HomeClass {
             // Get Users list from MongoDb
             mongoObject.connect();
             // Get previous day browsing data for each User
-
-            // Generate transactions from browsing data
+*/
+            // Generate transactions from browsing data 
             HashMap<Integer, JSONObject> historyList = breakData();
-            List<String> transactionList = new ArrayList<String>();
+/*           List<String> transactionList = new ArrayList<String>();
             for(int i : historyList.keySet()){
                 JSONObject tempJSON = historyList.get(i);
                 StringBuilder tempTransaction = new StringBuilder();
@@ -154,7 +154,7 @@ public class HomeClass {
                 "                }," +
                 "                {" +
                 "                        \"T1\" : 1493625006127," +
-                "                        \"T2\" : 1493625011257," +
+                "                        \"T2\" : 1493767823," +
                 "                        \"hostname\" : \"maxartkiller.in\"," +
                 "                        \"pathname\" : \"/website/rockon/rockon_blue/pages/index.html\"" +
                 "                }," +
@@ -185,25 +185,45 @@ public class HomeClass {
     }
 
     private static void addToSlot(HashMap<Integer, JSONObject> historyList, JSONObject historyRecord){
-        long t1 = (long) historyRecord.get("T1");
-        long t2 = (long) historyRecord.get("T2");
+        long t1 = (Long) historyRecord.get("T1");
+        long t2 = (Long) historyRecord.get("T2");
         Timestamp T1 = new Timestamp(t1);
         Timestamp T2 = new Timestamp(t2);
-        int key = T1.getHours();
         String url = (String)historyRecord.get("hostname");
-        if(historyList.containsKey(key/2)){
+        Timestamp T3 = T1;
+        while(T3.getHours() != T2.getHours()) {
+        	T3 = addTransaction(url,T3,T2,historyList,historyRecord);
+        }
+    }
+    
+    private static Timestamp addTransaction(String url, Timestamp T1,  Timestamp T2, HashMap<Integer, JSONObject> historyList, JSONObject historyRecord) {
+    	int key = T1.getHours();
+    	Timestamp T3 = null;
+    	if(T2.getHours() - T1.getHours() > 2) {
+    	Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(T1.getTime());
+        cal.add(Calendar.HOUR, 2);
+        T3 = new Timestamp(cal.getTime().getTime());
+    	} else {
+    		T3 = T2;
+    	}
+    	long t1 = T1.getSeconds();
+        long t2 = T3.getSeconds();
+    	if(historyList.containsKey(key/2)){
             JSONObject tempJSON = (JSONObject) historyList.get(key/2);
             if(tempJSON.containsKey(url)){
-                tempJSON.put(url, (long)tempJSON.get(url) + (t2-t1)/1000);
+                tempJSON.put(url, (Long)tempJSON.get(url) + (t2-t1));
             }
             else{
-                tempJSON.put(url, (t2-t1)/1000);
+                tempJSON.put(url, (t2-t1));
             }
         }
         else{
             JSONObject tempJSON = new JSONObject();
-            tempJSON.put(url, (t2-t1)/1000 );
+            tempJSON.put(url, (t2-t1) );
             historyList.put(key/2, tempJSON);
         }
+    	
+    	return T3;
     }
 }
