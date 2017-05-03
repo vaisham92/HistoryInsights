@@ -15,12 +15,12 @@ historyApp.controller('mainController', function($scope, $http, $routeParams, ch
 	//$scope.loginUI = true;
 
 	chromeAPI.isLoggedIn(function(data) {
-		// alert(JSON.stringify(data));
-		$scope.loginUI = true;
+		//alert(JSON.stringify(data));
+		$scope.loginUI = false;
 		//console.log("$scope.loginUI: " + $scope.loginUI);
 	}, function(err) {
 		//alert(JSON.stringify(err));
-		$scope.loginUI = false;
+		$scope.loginUI = true;
 		//console.log("$scope.loginUI: " + $scope.loginUI);
 	});
 	$scope.login = function() {
@@ -33,7 +33,7 @@ historyApp.controller('mainController', function($scope, $http, $routeParams, ch
 	};
 
 	$scope.signup = function() {
-		$scope.loginUI = false;
+		// $scope.loginUI = false;
 		//console.log("in here 2\n");
 	};
 

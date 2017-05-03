@@ -1,4 +1,4 @@
-var saveData = function(key, value) {
+/*var saveData = function(key, value) {
        // Get a value saved in a form.
        //var theValue = textarea.value;
        // Check that there's some code there.
@@ -11,7 +11,7 @@ var saveData = function(key, value) {
          // Notify that we saved.
          //alert(key + ' saved into chrome storage!');
        });
-};
+};*/
 
 /*var getData = function(key) {
   if(!key) {

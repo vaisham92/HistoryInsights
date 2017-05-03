@@ -1,5 +1,22 @@
 angular.module('history').service('chromeAPI', function ($q) {
 
+    var saveData = function(key, value) {
+       // Get a value saved in a form.
+       //var theValue = textarea.value;
+       // Check that there's some code there.
+       if (!value) {
+         alert('Error: No value specified');
+         return;
+       }
+       var data = {};
+       data[key] = value;
+       // Save it using the Chrome extension storage API.
+       chrome.storage.sync.set(data, function() {
+         // Notify that we saved.
+         //alert(key + ' saved into chrome storage!');
+       });
+    };
+
     var _this = this;
     this.data = [];
     this.authToken = "";
@@ -10,9 +27,10 @@ angular.module('history').service('chromeAPI', function ($q) {
     */
     this.isLoggedIn = function(success, failure) {
     	chrome.storage.sync.get("auth_token", function(keys) {
-    		console.log("feteched auth_token: " + JSON.stringify(keys));
-    		if (keys === null || keys === undefined) failure("undefined");
-    		else success(keys);
+            //alert(keys["auth_token"]);
+    		//console.log("feteched auth_token: " + JSON.stringify(keys));
+    		if (keys["auth_token"] == undefined) failure("undefined");
+    		else success(keys["auth_token"]);
     	});
     };
 
