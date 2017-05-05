@@ -1,8 +1,7 @@
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import jdk.nashorn.internal.parser.JSONParser;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -11,7 +10,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -32,8 +30,7 @@ public class WebCategorizer {
             con.setRequestProperty("User-agent", "Web Categorizer");
             int responseCode = con.getResponseCode();
             if(responseCode == HttpURLConnection.HTTP_OK){
-                BufferedReader in = new BufferedReader(new InputStreamReader(
-                        con.getInputStream()));
+                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
                 String inputLine;
                 StringBuffer response = new StringBuffer();
 
@@ -43,9 +40,8 @@ public class WebCategorizer {
                 in.close();
 
 
-                JSONParser parser = new JSONParser();
-                Object jsonObj = parser.parse(response.toString());
-                JSONArray inputData = (JSONArray)jsonObj;
+
+                JSONArray inputData = new JSONArray(response.toString());
                 for (Object currObj: inputData
                      ) {
                     JSONObject tempObj = (JSONObject)currObj;
@@ -53,7 +49,7 @@ public class WebCategorizer {
                 }
 
                 FileWriter file = new FileWriter(categoriesFile);
-                file.write(webCatList.toJSONString());
+                file.write(webCatList.toString());
                 file.flush();
                 file.close();
             }
@@ -68,11 +64,15 @@ public class WebCategorizer {
     }
 
     public JSONObject loadCategories(){
-        JSONParser parser = new JSONParser();
         try{
-            Object obj = parser.parse(new FileReader(categoriesFile));
-            JSONObject jsonObject = (JSONObject) obj;
-            return jsonObject;
+            BufferedReader br = new BufferedReader(new FileReader(categoriesFile));
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+            while (line != null) {
+                sb.append(line);
+                line = br.readLine();
+            }
+            return new JSONObject(sb.toString());
         }
         catch (Exception ex){
             return new JSONObject();
@@ -120,15 +120,16 @@ public class WebCategorizer {
                 URLConnection connection = obj.openConnection();
 
                 Document doc = parseXML(connection.getInputStream());
+
                 NodeList descNodes = doc.getElementsByTagName("DomC");
                 if(descNodes.getLength()!=0){
-                    String cat = (String) webCatList.getOrDefault(breakString(descNodes.item(0).getTextContent().toLowerCase()), "Unknown");
+                    String cat = (String) webCatList.get(breakString(descNodes.item(0).getTextContent().toLowerCase()));
                     cat.replace("\\/","/");
                     urlCategoryList.put(url, cat);
                 }
                 else{
                     descNodes = doc.getElementsByTagName("DirC");
-                    String cat = (String) webCatList.getOrDefault(breakString(descNodes.item(0).getTextContent().toLowerCase()), "Unknown");
+                    String cat = (String) webCatList.get(breakString(descNodes.item(0).getTextContent().toLowerCase()));
                     cat.replace("\\/","/");
                     urlCategoryList.put(url, cat);
                 }
@@ -136,6 +137,7 @@ public class WebCategorizer {
             return urlCategoryList;
         }
         catch(Exception ex) {
+            System.out.println(ex.getClass().getName().toString());
             System.out.println("Not working");
             return urlCategoryList;
         }
