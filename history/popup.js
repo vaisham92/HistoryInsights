@@ -76,6 +76,25 @@ historyApp.controller('mainController', function($scope, $http, $routeParams, ch
         }
     });
 
+    chrome.idle.onStateChanged.addListener(function callback(newState) {
+    	console.log(newState);
+    	//"active", "idle", or "locked"
+    	if(newState == "idle" || newState == "locked") {
+    		updateT2();
+			updateWebsite();
+			console.log("sending data");
+    		sendData(profile_id, newT1, newT2, website);
+    		website = null;
+    		console.log(newState);
+    	}
+    	else if(newState == "active") {
+    		updateT1();
+    		updateWebsite();
+    		console.log(newState);
+    	}
+
+    });
+
 	var updateT1 = function() {
 		current_date = new Date();
 		newT1 = current_date.getTime();
@@ -104,7 +123,7 @@ historyApp.controller('mainController', function($scope, $http, $routeParams, ch
 		if(newT2 - newT1 < 5000) return;
         $http({
         	method: 'POST',
-            url: 'http://localhost:3000/history',
+            url: 'http://localhost:5000/history',
             data: {
 	            "profile_id": profile_id,
 	            "T1": newT1,
@@ -120,7 +139,7 @@ historyApp.controller('mainController', function($scope, $http, $routeParams, ch
 	};
 
 	var sendGet = function() {
-		var get = $http.get("http://localhost:3000/get");
+		var get = $http.get("http://localhost:5000/get");
 		get.success(function(data) {
 			console.log("get call done");
 		});
