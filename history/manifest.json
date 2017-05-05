@@ -17,7 +17,8 @@
     "activeTab",
     "idle",
     "https://ajax.googleapis.com/",
-    "http://localhost:5000/*"
+    "http://localhost:5000/*",
+    "https://historyinsights.herokuapp.com/*"
   ],
   "oauth2": {
     "client_id": "647425232826-466o811ds8sd1318qk00pck651bvhe75.apps.googleusercontent.com",

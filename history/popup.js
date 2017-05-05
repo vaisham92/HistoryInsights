@@ -123,7 +123,7 @@ historyApp.controller('mainController', function($scope, $http, $routeParams, ch
 		if(newT2 - newT1 < 5000) return;
         $http({
         	method: 'POST',
-            url: 'http://localhost:5000/history',
+            url: 'https://historyinsights.herokuapp.com/history',
             data: {
 	            "profile_id": profile_id,
 	            "T1": newT1,
