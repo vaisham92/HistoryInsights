@@ -4,7 +4,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.mllib.fpm.AssociationRules;
 import org.apache.spark.mllib.fpm.FPGrowth;
 import org.apache.spark.mllib.fpm.FPGrowthModel;
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +24,7 @@ public class GenerateRules
 
         JavaRDD<List<String>> transactions = data.map(line -> Arrays.asList(line.split(" ")));
 
-        FPGrowth fpg = new FPGrowth().setMinSupport(0.6).setNumPartitions(10);
+        FPGrowth fpg = new FPGrowth().setMinSupport(0.5).setNumPartitions(10);
         FPGrowthModel<String> model = fpg.run(transactions);
 
         double minConfidence = 0.8;
@@ -37,7 +37,6 @@ public class GenerateRules
             tempObj.put("conf", rule.confidence());
             result.add(tempObj);
         }
-
         sc.stop();
         return result;
     }
