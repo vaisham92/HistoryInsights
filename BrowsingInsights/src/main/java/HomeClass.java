@@ -64,7 +64,7 @@ public class HomeClass {
         }
         finally {
             // Save rules & url category count in MongoDb
-            //previousDayResultCollection.insertMany(resultsRulesAndCategoryList);
+            previousDayResultCollection.insertMany(resultsRulesAndCategoryList);
             disconnectDB();
         }
     }
