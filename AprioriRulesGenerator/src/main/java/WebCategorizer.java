@@ -1,3 +1,4 @@
+import com.mongodb.client.MongoCollection;
 import jdk.nashorn.internal.parser.JSONParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,16 +13,17 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.HashSet;
+import static com.mongodb.client.model.Filters.*;
 
 /**
  * Created by maverick on 5/2/17.
  */
-public class WebCategorizer {
-    String categoriesFile = "categories.txt";
-    String categoriesUrl = "http://sitereview.bluecoat.com/rest/categoryList?alpha=true";
-    String k9License = "K9DFC8228A";
+class WebCategorizer {
+    private String categoriesFile = "categories.txt";
+    private String categoriesUrl = "http://sitereview.bluecoat.com/rest/categoryList?alpha=true";
+    private String k9License = "K9DFC8228A";
 
-    public JSONObject fetchCategories(){
+    private JSONObject fetchCategories(){
         try{
             JSONObject webCatList = new JSONObject();
             URL obj = new URL(categoriesUrl);
@@ -38,8 +40,6 @@ public class WebCategorizer {
                     response.append(inputLine);
                 }
                 in.close();
-
-
 
                 JSONArray inputData = new JSONArray(response.toString());
                 for (Object currObj: inputData
@@ -63,7 +63,7 @@ public class WebCategorizer {
         }
     }
 
-    public JSONObject loadCategories(){
+    private JSONObject loadCategories(){
         try{
             BufferedReader br = new BufferedReader(new FileReader(categoriesFile));
             StringBuilder sb = new StringBuilder();
@@ -83,8 +83,7 @@ public class WebCategorizer {
         return s.substring(0,2);
     }
 
-    public HashMap<String, String> getWebCategories(HashSet<String> urlList){
-        HashMap<String, String> urlCategoryList = new HashMap<String, String>();
+    public void getWebCategories(HashSet<String> urlSet, HashMap<String, String> websiteCategoryMap, MongoCollection<org.bson.Document> websiteCategoryCollection){
         try{
             File file = new File(categoriesFile);
             JSONObject webCatList = new JSONObject();
@@ -94,57 +93,60 @@ public class WebCategorizer {
             else{
                 webCatList = fetchCategories();
             }
-            for(String url : urlList){
-                if(urlCategoryList.containsKey(url))
+            for(String url : urlSet){
+                if(websiteCategoryMap.containsKey(url))
                     continue;
-                String host = "";
-                String port = "";
-                if (url.indexOf(':') > -1) {
-                    String[] urlAddr = url.split(":");
-                    host = urlAddr[0];
-                    port = urlAddr[1];
-                } else {
-                    host = url;
-                    port = "80";
-                }
-                StringBuilder remoteUrl = new StringBuilder("http://sp.cwfservice.net/1/R/");
-                remoteUrl.append(k9License);
-                remoteUrl.append("/K9-00006/0/GET/HTTP/");
-                remoteUrl.append(host);
-                remoteUrl.append("/");
-                remoteUrl.append(port);
-                remoteUrl.append("///");
+                org.bson.Document urlDoc = websiteCategoryCollection.find(eq("URLDomain", url)).first();
+                if(urlDoc==null){
+                    String host = "";
+                    String port = "";
+                    if (url.indexOf(':') > -1) {
+                        String[] urlAddr = url.split(":");
+                        host = urlAddr[0];
+                        port = urlAddr[1];
+                    } else {
+                        host = url;
+                        port = "80";
+                    }
+                    StringBuilder remoteUrl = new StringBuilder("http://sp.cwfservice.net/1/R/");
+                    remoteUrl.append(k9License);
+                    remoteUrl.append("/K9-00006/0/GET/HTTP/");
+                    remoteUrl.append(host);
+                    remoteUrl.append("/");
+                    remoteUrl.append(port);
+                    remoteUrl.append("///");
 
-                //Fetch Key for URL
-                URL obj = new URL(remoteUrl.toString());
-                URLConnection connection = obj.openConnection();
+                    //Fetch Key for URL
+                    URL obj = new URL(remoteUrl.toString());
+                    URLConnection connection = obj.openConnection();
 
-                Document doc = parseXML(connection.getInputStream());
+                    Document doc = parseXML(connection.getInputStream());
 
-                NodeList descNodes = doc.getElementsByTagName("DomC");
-                if(descNodes.getLength()!=0){
-                    String cat = (String) webCatList.get(breakString(descNodes.item(0).getTextContent().toLowerCase()));
-                    cat.replace("\\/","/");
-                    urlCategoryList.put(url, cat);
+                    NodeList descNodes = doc.getElementsByTagName("DomC");
+                    if(descNodes.getLength()!=0){
+                        String cat = (String) webCatList.get(breakString(descNodes.item(0).getTextContent().toLowerCase()));
+                        websiteCategoryMap.put(url, cat);
+                        websiteCategoryCollection.insertOne(new org.bson.Document("URLId", url.hashCode()).append("URLDomain", url.toString()).append("URLCategory", cat));
+                    }
+                    else{
+                        descNodes = doc.getElementsByTagName("DirC");
+                        String cat = (String) webCatList.get(breakString(descNodes.item(0).getTextContent().toLowerCase()));
+                        websiteCategoryMap.put(url, cat);
+                        websiteCategoryCollection.insertOne(new org.bson.Document("URLId", url.hashCode()).append("URLDomain", url.toString()).append("URLCategory", cat));
+                    }
                 }
                 else{
-                    descNodes = doc.getElementsByTagName("DirC");
-                    String cat = (String) webCatList.get(breakString(descNodes.item(0).getTextContent().toLowerCase()));
-                    cat.replace("\\/","/");
-                    urlCategoryList.put(url, cat);
+                    websiteCategoryMap.put(url, new JSONObject(urlDoc.toJson()).get("URLCategory").toString());
                 }
             }
-            return urlCategoryList;
         }
         catch(Exception ex) {
-            System.out.println(ex.getClass().getName().toString());
+            System.out.println(ex.getClass().getName());
             System.out.println("Not working");
-            return urlCategoryList;
         }
     }
 
-    private Document parseXML(InputStream stream)
-            throws Exception
+    private Document parseXML(InputStream stream) throws Exception
     {
         DocumentBuilderFactory objDocumentBuilderFactory = null;
         DocumentBuilder objDocumentBuilder = null;
@@ -160,7 +162,6 @@ public class WebCategorizer {
         {
             throw ex;
         }
-
         return doc;
     }
 }
