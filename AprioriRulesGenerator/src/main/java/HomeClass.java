@@ -17,216 +17,225 @@ import java.util.*;
  */
 
 public class HomeClass {
-    // historyList - HashMap for slot, url-time
-    // transactionList - List of transactions
-    // categoryList - HashMap for url, category
+
     private static MongoClient mongoClient;
-
-    public static String getCollectionName(){
-        StringBuilder collectionName = new StringBuilder("h");
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -1);
-        DateFormat dF = new SimpleDateFormat("MM/dd/yyyy");
-        collectionName.append(dF.format(cal.getTime()).toString().replace("/",""));
-        return collectionName.toString();
-    }
-
-    private static MongoDatabase connectToDB(){
-        MongoClientURI mongoClientURI = new MongoClientURI("mongodb://vaisham92:marias@ds131041.mlab.com:31041/history");
-        mongoClient = new MongoClient(mongoClientURI);
-        MongoDatabase db = mongoClient.getDatabase("history");
-        return db;
-    }
-
-    private static void disconnectDB(){
-        mongoClient.close();
-    }
+    private static HashMap<String, String> websiteCategoryMap;
+    private static MongoCollection<Document> websiteCategoryCollection;
+    private static MongoCollection<Document> previousDayHistoryCollection;
+    private static MongoCollection<Document> previousDayResultCollection;
+    private static List<Document> resultsRulesAndCategoryList;
 
     public static void main(String[] args){
+        websiteCategoryMap = new HashMap<>();
         try{
 
             // Get Users list from MongoDb
             MongoDatabase mDB = connectToDB();
 
             // Retrieving Collection Name
-            String yesterday = getCollectionName();
-            //MongoCollection<Document> collection = mDB.getCollection(yesterday);
-            MongoCollection<Document> collection = mDB.getCollection("h05032017");
+            String cNameHistory = getYesterdayCollectionName(0);
+            String cNameResult = getYesterdayCollectionName(1);
+            previousDayHistoryCollection = mDB.getCollection(cNameHistory);
+            previousDayResultCollection = mDB.getCollection(cNameResult);
+            websiteCategoryCollection = mDB.getCollection("URLRepository");
 
-            MongoCursor<Document> cursor = collection.find().iterator();
-            JSONArray usersResultSet = new JSONArray();
+            MongoCursor<Document> cursor = previousDayHistoryCollection.find().iterator();
+            resultsRulesAndCategoryList = new ArrayList<>();
+
             while (cursor.hasNext()){
-                JSONObject currentRecord = new JSONObject(cursor.next().toJson());
-                for(String user : (Set<String>)currentRecord.keySet()){
-                    if(user.equals("_id")) continue;
-                    JSONObject tempJSON = new JSONObject();
-                    JSONArray userData = currentRecord.getJSONArray(user);
-                    JSONObject userResult = getRulesAndAnalysis(userData);
-                    tempJSON.put(user, userResult);
-                    usersResultSet.put(tempJSON);
-                }
+                JSONArray categoryTimeArray = new JSONArray();
+                JSONObject currentUserRecord = new JSONObject(cursor.next().toJson());
+                String userId = currentUserRecord.getString("user_id");
+                JSONArray userChromeHistoryArray = currentUserRecord.getJSONArray("chromeHistory");
+                ArrayList<JSONObject> rulesArray =  getRulesAndCategoryAnalysis(userChromeHistoryArray, categoryTimeArray);
+                resultsRulesAndCategoryList.add(new Document().parse(new JSONObject().put("user_id", userId).put("rules", rulesArray).put("categories", categoryTimeArray).toString()));
             }
-            System.out.println(usersResultSet);
-
-            // Save rules & url category count in MongoDb
-
-
+            for(Document d : resultsRulesAndCategoryList){
+                System.out.println(d.toJson());
+            }
         }
         catch(Exception ex) {
             if(ex.getClass().getName().equals("UnknownHostException")){
                 System.out.println("Error in connecting to MongoDb");
             }
+            else{
+                System.out.println(ex.getClass().getName());
+            }
         }
         finally {
+            // Save rules & url category count in MongoDb
+            //previousDayResultCollection.insertMany(resultsRulesAndCategoryList);
             disconnectDB();
         }
     }
 
-    private static JSONObject getRulesAndAnalysis(JSONArray userData){
-        // Break data into time slots and time spent
-        HashMap<Integer, JSONObject> historyList = breakData(userData);
+    // Function to connect to Mongo
+    private static MongoDatabase connectToDB(){
+        MongoClientURI mongoClientURI = new MongoClientURI("mongodb://vaisham92:marias@ds131041.mlab.com:31041/history");
+        mongoClient = new MongoClient(mongoClientURI);
+        return mongoClient.getDatabase("history");
+    }
 
+    // Function to generate yesterday CollectionName
+    private static String getYesterdayCollectionName(int i){
+        StringBuilder collectionName = new StringBuilder();
+        if(i==0) collectionName.append("h");
+        else collectionName.append("r");
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        DateFormat dF = new SimpleDateFormat("MM/dd/yyyy");
+        collectionName.append(dF.format(cal.getTime()).replace("/",""));
+        return collectionName.toString();
+    }
+
+    // Function to generate rules and category wise time
+    private static ArrayList<JSONObject> getRulesAndCategoryAnalysis(JSONArray userChromeHistoryArray, JSONArray categoryTimeArray){
+
+        // Break data into time slots and time spent
+        HashMap<Integer, JSONObject> userChromeHistoryMap = breakData(userChromeHistoryArray);
+
+        // Generate unique URL list
+        HashSet<String> urlSet = new HashSet<>();
+        for(int i : userChromeHistoryMap.keySet()) {
+            urlSet.addAll(userChromeHistoryMap.get(i).keySet());
+        }
 
         // Retrieve category of the url
-        HashSet<String> urlList = new HashSet<String>();
-        for(int i : historyList.keySet()) {
-            urlList.addAll(historyList.get(i).keySet());
-        }
         WebCategorizer wc = new WebCategorizer();
-        HashMap<String, String> categoryList = wc.getWebCategories(urlList);
+        wc.getWebCategories(urlSet, websiteCategoryMap, websiteCategoryCollection);
 
         // Generate time spent on each category in a time slot
-        HashMap<Integer, JSONObject> urlTimeMap = new HashMap<Integer, JSONObject>();
-        for(int i : historyList.keySet()){
-            JSONObject urlData = historyList.get(i);
-            for (Object url : urlData.keySet()) {
-                JSONObject tempJSON = new JSONObject();
-                String currentUrl = (String) url;
-                String category = categoryList.get(currentUrl);
-                if(urlTimeMap.containsKey(i)){
-                    tempJSON = urlTimeMap.get(i);
-                    if(tempJSON.has(category)){
-                        tempJSON.put(category, tempJSON.getLong(category) + urlData.getLong(currentUrl));
-                    }
-                    else {
-                        tempJSON.put(category, urlData.getLong(currentUrl) );
-                    }
-                }
-                else {
-                    tempJSON.put(category, urlData.getLong(currentUrl) );
-                    urlTimeMap.put(i, tempJSON);
-                }
-            }
-        }
-        JSONArray urlCategoryTime = new JSONArray();
-        for(int i : urlTimeMap.keySet()){
+        HashMap<Integer, JSONObject> chromeHistoryUrlTimeMap = new HashMap<>();
+        computeCategoryTime(userChromeHistoryMap, websiteCategoryMap, chromeHistoryUrlTimeMap);
+
+        for(int i : chromeHistoryUrlTimeMap.keySet()){
             JSONObject tempJSON = new JSONObject();
             tempJSON.put("slot", i);
-            tempJSON.put("slot_categories", urlTimeMap.get(i));
-            urlCategoryTime.put(tempJSON);
+            tempJSON.put("slot_categories", chromeHistoryUrlTimeMap.get(i));
+            categoryTimeArray.put(tempJSON);
         }
 
-        // Generate transactional data from historyList
-        List<String> transactionList = new ArrayList<String>();
-        for(int i : historyList.keySet()){
-            JSONObject tempJSON = historyList.get(i);
-            StringBuilder tempTransaction = new StringBuilder();
-            for(String key : tempJSON.keySet()){
-                if(tempJSON.getLong(key) > 30) {
-                    tempTransaction.append((String)key+" ");
-                }
-            }
-            if(tempTransaction.toString().length() != 0)
-                transactionList.add(tempTransaction.toString());
-        }
+        // Generate transactional data from userChromeHistoryMap
+        List<String> transactionList = new ArrayList<>();
+        buildTransactions(userChromeHistoryMap,transactionList);
+
 
         // Generate rules
         GenerateRules gr = new GenerateRules();
-        ArrayList<JSONObject> rules = gr.generateRules(transactionList);
-        JSONObject rulesAndCategoryData = new JSONObject();
-        rulesAndCategoryData.put("rules", rules);
-        rulesAndCategoryData.put("categories", urlCategoryTime);
-        return rulesAndCategoryData;
+        return gr.generateRules(transactionList);
+        //return new ArrayList<>();
     }
 
     // Function to break data set into HashMap
-    private static HashMap<Integer, JSONObject> breakData(JSONArray userData){
+    private static HashMap<Integer, JSONObject> breakData(JSONArray userChromeHistoryArray){
         try{
-            HashMap<Integer, JSONObject> historyList = new HashMap<Integer, JSONObject>();
-            for(Object urlHistory : userData){
-                JSONObject historyRecord = (JSONObject)urlHistory;
-                addToSlot(historyList, historyRecord);
-                Timestamp T1 = new Timestamp(historyRecord.getLong("T1"));
-                Timestamp T2 = new Timestamp(historyRecord.getLong("T2"));
+            HashMap<Integer, JSONObject> userChromeHistoryMap = new HashMap<>();
+            for(Object chromeHistoryUrlRecord : userChromeHistoryArray){
+                addToSlot(userChromeHistoryMap, (JSONObject)chromeHistoryUrlRecord);
             }
-            return historyList;
+            return userChromeHistoryMap;
         }
         catch(Exception ex) {
-            System.out.println(ex.getClass().getName().toString());
-            return new HashMap<Integer, JSONObject>();
+            System.out.println(ex.getClass().getName());
+            return new HashMap<>();
         }
     }
 
     // Function to generate slots for url
-    private static void addToSlot(HashMap<Integer, JSONObject> historyList, JSONObject historyRecord){
-        Timestamp T1 = new Timestamp(historyRecord.getLong("T1"));
-        Timestamp T2 = new Timestamp(historyRecord.getLong("T2"));
-        int key = T1.getHours();
-        String url = (String)historyRecord.get("hostname");
-        Timestamp T3 = T1;
+    private static void addToSlot(HashMap<Integer, JSONObject> userChromeHistoryMap, JSONObject chromeHistoryUrlRecord){
+        Timestamp startTimestamp = new Timestamp(chromeHistoryUrlRecord.getLong("T1"));
+        Timestamp endTimestamp = new Timestamp(chromeHistoryUrlRecord.getLong("T2"));
+        int key = startTimestamp.getHours();
+        String url = chromeHistoryUrlRecord.getString("hostname");
         Calendar cal = Calendar.getInstance();
         Calendar cal1 = Calendar.getInstance();
-        cal.setTimeInMillis(T3.getTime());
-        cal1.setTimeInMillis(T2.getTime());
-        while(T3.getHours() != T2.getHours()) {
-            T3 = addTransaction(url,T3,T2,historyList,historyRecord);
-        }
-        if(T3!=T2){
-            if(historyList.containsKey(key/2)){
-                JSONObject tempJSON = historyList.get(key/2);
+        cal.setTimeInMillis(startTimestamp.getTime());
+        cal1.setTimeInMillis(endTimestamp.getTime());
+        Timestamp tempTimestamp;
+        while(startTimestamp.getHours() != endTimestamp.getHours()){
+            Calendar cal2 = Calendar.getInstance();
+            cal2.setTimeInMillis(startTimestamp.getTime());
+            cal2.add(Calendar.MINUTE, 59-startTimestamp.getMinutes());
+            cal2.add(Calendar.SECOND, 59-startTimestamp.getSeconds());
+            tempTimestamp = new Timestamp(cal2.getTime().getTime());
+            key = startTimestamp.getHours();
+            if(userChromeHistoryMap.containsKey(key)){
+                JSONObject tempJSON = userChromeHistoryMap.get(key);
                 if(tempJSON.has(url)){
-                    tempJSON.put(url, (Long)tempJSON.get(url) + (T2.getTime()-T3.getTime())/1000);
+                    tempJSON.put(url, (Long)tempJSON.get(url) + (tempTimestamp.getTime()-startTimestamp.getTime())/1000);
                 }
                 else{
-                    tempJSON.put(url, (T2.getTime()-T3.getTime())/1000);
+                    tempJSON.put(url, (tempTimestamp.getTime()-startTimestamp.getTime())/1000);
                 }
             }
             else{
                 JSONObject tempJSON = new JSONObject();
-                tempJSON.put(url, (T2.getTime()-T3.getTime())/1000 );
-                historyList.put(key/2, tempJSON);
+                tempJSON.put(url, (tempTimestamp.getTime()-startTimestamp.getTime())/1000 );
+                userChromeHistoryMap.put(key, tempJSON);
+            }
+            cal2.add(Calendar.SECOND, 1);
+            startTimestamp = new Timestamp(cal2.getTime().getTime());
+        }
+        if(startTimestamp!=endTimestamp){
+            if(userChromeHistoryMap.containsKey(key)){
+                JSONObject tempJSON = userChromeHistoryMap.get(key);
+                if(tempJSON.has(url)){
+                    tempJSON.put(url, (Long)tempJSON.get(url) + (endTimestamp.getTime()-startTimestamp.getTime())/1000);
+                }
+                else{
+                    tempJSON.put(url, (endTimestamp.getTime()-startTimestamp.getTime())/1000);
+                }
+            }
+            else{
+                JSONObject tempJSON = new JSONObject();
+                tempJSON.put(url, (endTimestamp.getTime()-startTimestamp.getTime())/1000 );
+                userChromeHistoryMap.put(key, tempJSON);
             }
         }
     }
 
-    // Function to add url to a specific transaction slot
-    private static Timestamp addTransaction(String url, Timestamp T1,  Timestamp T2, HashMap<Integer, JSONObject> historyList, JSONObject historyRecord) {
-        int key = T1.getHours();
-        Timestamp T3 = null;
-        if(T2.getHours() - T1.getHours() > 2) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(T1.getTime());
-            cal.add(Calendar.HOUR, 2);
-            cal.add(Calendar.MINUTE, 60-T1.getMinutes());
-            cal.add(Calendar.SECOND, 59-T1.getSeconds());
-            T3 = new Timestamp(cal.getTime().getTime());
-        } else {
-            T3 = T2;
-        }
-        if(historyList.containsKey(key/2)){
-            JSONObject tempJSON = historyList.get(key/2);
-            if(tempJSON.has(url)){
-                tempJSON.put(url, (Long)tempJSON.get(url) + (T3.getTime()-T1.getTime())/1000);
+    // Function to compute time spent on each category
+    private static void computeCategoryTime( HashMap<Integer, JSONObject> userChromeHistoryMap, HashMap<String, String> websiteCategoryMap, HashMap<Integer, JSONObject> chromeHistoryUrlTimeMap){
+        for(int i : userChromeHistoryMap.keySet()){
+            JSONObject urlData = userChromeHistoryMap.get(i);
+            for (Object url : urlData.keySet()) {
+                JSONObject tempJSON = new JSONObject();
+                String currentUrl = (String) url;
+                String urlCategory = websiteCategoryMap.get(currentUrl);
+                if(chromeHistoryUrlTimeMap.containsKey(i)){
+                    tempJSON = chromeHistoryUrlTimeMap.get(i);
+                    if(tempJSON.has(urlCategory)){
+                        tempJSON.put(urlCategory, tempJSON.getLong(urlCategory) + urlData.getLong(currentUrl));
+                    }
+                    else {
+                        tempJSON.put(urlCategory, urlData.getLong(currentUrl) );
+                    }
+                }
+                else {
+                    tempJSON.put(urlCategory, urlData.getLong(currentUrl) );
+                    chromeHistoryUrlTimeMap.put(i, tempJSON);
+                }
             }
-            else{
-                tempJSON.put(url, (T3.getTime()-T1.getTime())/1000);
-            }
         }
-        else{
-            JSONObject tempJSON = new JSONObject();
-            tempJSON.put(url, (T3.getTime()-T1.getTime())/1000 );
-            historyList.put(key/2, tempJSON);
-        }
-        return T3;
     }
+
+    // Function to build transactional data from browsing history
+    private static void buildTransactions(HashMap<Integer, JSONObject> userChromeHistoryMap, List<String> transactionList){
+        for(int i : userChromeHistoryMap.keySet()){
+            JSONObject tempJSON = userChromeHistoryMap.get(i);
+            StringBuilder tempTransaction = new StringBuilder();
+            for(String key : tempJSON.keySet()){
+                if(tempJSON.getLong(key) > 30) {
+                    tempTransaction.append(key+" ");
+                }
+            }
+            if(tempTransaction.toString().length() != 0) transactionList.add(tempTransaction.toString());
+        }
+    }
+
+    // Function to disconnect from Mongo
+    private static void disconnectDB(){
+        mongoClient.close();
+    }
+
 }

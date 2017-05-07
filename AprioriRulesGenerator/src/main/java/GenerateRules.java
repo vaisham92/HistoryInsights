@@ -14,8 +14,9 @@ import java.util.List;
  * Created by maverick on 5/1/17.
  */
 
-public class GenerateRules
+class GenerateRules 
 {
+    // Function to initiate Spark and compute association rules
     public ArrayList<JSONObject> generateRules(List<String> input){
         SparkConf sparkConf = new SparkConf().setAppName("AssociationRulesGenerator").setMaster("local[*]");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
@@ -28,9 +29,17 @@ public class GenerateRules
         FPGrowthModel<String> model = fpg.run(transactions);
 
         double minConfidence = 0.8;
-        ArrayList<JSONObject> result = new ArrayList<JSONObject>();
+        ArrayList<JSONObject> result = new ArrayList<>();
+        List<AssociationRules.Rule<String>> rules = model.generateAssociationRules(minConfidence).toJavaRDD().collect();
+        int max = 0;
+        for(AssociationRules.Rule<String> rule : rules){
+            if(rule.javaAntecedent().size() > max){
+                max = rule.javaAntecedent().size();
+            }
+        }
 
-        for (AssociationRules.Rule<String> rule : model.generateAssociationRules(minConfidence).toJavaRDD().collect()) {
+        for (AssociationRules.Rule<String> rule : rules) {
+            if(rule.javaAntecedent().size() < max) continue;
             JSONObject tempObj = new JSONObject();
             tempObj.put("LHS",rule.javaAntecedent());
             tempObj.put("RHS", rule.javaConsequent());
